@@ -4,32 +4,14 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sitio con AJAX</title>
+    <title>Incluir HTML con AJAX</title>
     <link rel="stylesheet" href="sitio-ajax.css" />
+    <script src="assets/include-html.js"></script>
   </head>
   <body>
-    <header class="header">
-      <section class="header-content container">
-        <article class="logo">
-          <img
-            src="https://media.discordapp.net/attachments/894702938386210896/989791194143948870/2a635c51cd4982bf634d897bbc7e96b3.jpg?width=1247&height=701"
-            alt="fondo"
-          />
-        </article>
-        <nav class="menu">
-          <a href="assets/home.html">Home</a>
-          <a href="assets/acerca.html">Acerca</a>
-          <a href="assets/servicios.html">Servicios</a>
-          <a href="assets/contacto.html">Contacto</a>
-        </nav>
-      </section>
-    </header>
+    <div data-include="assets/header.html"></div>
     <main class="container"></main>
-    <footer class="footer container">
-      <p>
-        <small>Sitio Prueba</small>
-      </p>
-    </footer>
+    <div data-include="assets/footer.html"></div>
     <script>
       const d = document,
         $main = d.querySelector("main");
