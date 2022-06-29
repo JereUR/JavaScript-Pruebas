@@ -1,36 +1,67 @@
 import STRIPE_KEYS from "./stripe-keys.js";
 
 const d = document,
-  $yerba = d.getElementById("yerbas"),
-  $template = d.getElementById("yerba-template").contentEditable,
-  $fragment = d.createDocumentFragment();
+  $yerbas = d.getElementById("yerbas"),
+  $template = d.getElementById("yerba-template").content,
+  $fragment = d.createDocumentFragment(),
+  fetchOptions = {
+    headers: {
+      Authorization: `Bearer ${STRIPE_KEYS.secret}`,
+    },
+  };
 
-//Get Products
+let products, prices;
 
-fetch("https://api.stripe.com/v1/products", {
-  headers: {
-    Authorization: `Bearer ${STRIPE_KEYS.secret}`,
-  },
-})
-  .then((res) => {
-    //console.log(res);
-    return res.json();
-  })
+const moneyFormat = (num) => `$${num.slice(0, -2)}.${num.slice(-2)}`;
+
+Promise.all([
+  fetch("https://api.stripe.com/v1/products", fetchOptions),
+  fetch("https://api.stripe.com/v1/prices", fetchOptions),
+])
+  .then((responses) => Promise.all(responses.map((res) => res.json())))
   .then((json) => {
-    console.log(json);
+    products = json[0].data;
+    prices = json[1].data;
+
+    prices.forEach((el) => {
+      let productData = products.filter((product) => product.id === el.product);
+
+      $template.querySelector(".yerba").setAttribute("data-price", el.id);
+      $template.querySelector("img").src = productData[0].images[0];
+      $template.querySelector("img").alt = productData[0].name;
+      $template.querySelector("figcaption").innerHTML = `
+      ${productData[0].name}
+      <br>
+      ${moneyFormat(el.unit_amount_decimal)} ${el.currency}
+      `;
+
+      let $clone = d.importNode($template, true);
+      $fragment.appendChild($clone);
+    });
+
+    $yerbas.appendChild($fragment);
+  })
+  .catch((err) => {
+    console.log(err);
+    let message =
+      err.statusText || "Ocurrió un error al conectarse con la API de Stripe";
+    $yerbas.innerHTML = `<p>Error ${err.status}: ${message}</p>`;
   });
 
-  //Get Prices
-
-  fetch("https://api.stripe.com/v1/prices", {
-  headers: {
-    Authorization: `Bearer ${STRIPE_KEYS.secret}`,
-  },
-})
-  .then((res) => {
-    //console.log(res);
-    return res.json();
-  })
-  .then((json) => {
-    console.log(json);
-  });
+d.addEventListener("click", (e) => {
+  if (e.target.matches(".yerba *")) {
+    let priceId = e.target.parentElement.getAttribute("data-price");
+    Stripe(STRIPE_KEYS.public)
+      .redirectToCheckout({
+        lineItems: [{ price: priceId, quantity: 1 }], //Item price ID and quantity to buy
+        mode: "subscription", //Type of purchase
+        successUrl: "http://127.0.0.1:5500/assets/stripe-success.html", //URL in case ok
+        cancelUrl: "http://127.0.0.1:5500/assets/stripe-cancel.html", //URL in case error
+      })
+      .then((res) => {
+        if (res.error) {
+          $yerbas.insertAdjacentHTML("afterend", res.error.message);
+        }
+      });
+  }
+});

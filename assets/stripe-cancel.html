@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error en pago con Stripe</title>
+  </head>
+  <style>
+    html {
+      box-sizing: border-box;
+      font-family: sans-serif;
+      font-size: 16px;
+    }
+
+    *,
+    *::after,
+    *::before {
+      box-sizing: inherit;
+    }
+
+    h1 {
+      text-align: center;
+      background-color: rgb(202, 13, 22);
+      padding: 1rem;
+      width: 100%;
+    }
+
+    .section {
+      display: block;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .begin-btn {
+      padding: 1rem;
+      border-radius: 5%;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: rgb(57, 199, 255);
+      margin-top: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease-out;
+    }
+
+    .begin-btn:hover {
+      background-color: rgb(24, 89, 187);
+      color: #fff;
+    }
+  </style>
+  <body>
+    <h1>Error en pago con Stripe</h1>
+    <section class="section">
+      <p>Ocurrio un error. Inténtalo nuevamente 😔</p>
+      <button class="begin-btn">Volver al Inicio</button>
+    </section>
+  </body>
+  <script>
+    document.addEventListener("click", (e) => {
+      if (e.target.matches(".begin-btn")) {
+        console.log("prueba");
+        window.location.href = "http://127.0.0.1:5500/stripe-checkout.html";
+      }
+    });
+  </script>
+</html>
