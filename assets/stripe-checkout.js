@@ -5,6 +5,8 @@ const d = document,
   $template = d.getElementById("yerba-template").contentEditable,
   $fragment = d.createDocumentFragment();
 
+//Get Products
+
 fetch("https://api.stripe.com/v1/products", {
   headers: {
     Authorization: `Bearer ${STRIPE_KEYS.secret}`,
@@ -17,6 +19,8 @@ fetch("https://api.stripe.com/v1/products", {
   .then((json) => {
     console.log(json);
   });
+
+  //Get Prices
 
   fetch("https://api.stripe.com/v1/prices", {
   headers: {
