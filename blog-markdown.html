@@ -10,20 +10,6 @@
     <h1>Blog con Markdown y Showdown.js</h1>
     <main></main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
-    <script>
-      const d = document,
-        $main = d.querySelector("main");
-
-      fetch("assets/ejemplo.md")
-        .then((res) => (res.ok ? res.text() : Promise.reject(res)))
-        .then((text) => {
-          $main.innerHTML = new showdown.Converter().makeHtml(text);
-        })
-        .catch((err) => {
-          console.log(err);
-          let message = err.statusText || "Ocurrió un error";
-          $main.innerHTML = `<p>Error ${err.status}: ${message}</p>`;
-        });
-    </script>
+    <script src="js/blog-markdown.js"></script>
   </body>
 </html>
