@@ -5,6 +5,101 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WordPress REST API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        box-sizing: border-box;
+        font-family: "Raleway", sans-serif;
+        font-size: 16px;
+      }
+
+      *,
+      *::after,
+      *::before {
+        box-sizing: inherit;
+      }
+
+      a {
+        color: #01579b;
+        transition: all 0.3s ease-out;
+      }
+
+      a:hover {
+        opacity: 0.75;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      hr {
+        border: thin solid #01579b;
+        margin: 3rem auto;
+        width: 80%;
+      }
+
+      .site {
+        margin: 1rem auto;
+        padding: 1rem;
+        max-width: 50%;
+        text-align: center;
+      }
+
+      .post {
+        margin: 1rem auto;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        max-width: 80%;
+        text-align: center;
+        background-color: #eceff1;
+      }
+
+      .post-author img {
+        border-radius: 50%;
+      }
+
+      .post-date {
+        margin: 1rem auto;
+        display: block;
+      }
+
+      .post-excerpt,
+      .post-categories,
+      .post-tags,
+      .post-content {
+        text-align: left;
+      }
+
+      .post-content summary {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .post-content > article {
+        padding: 1rem;
+        background-color: #e3f2fd;
+      }
+
+      .post-content img {
+        display: block;
+        margin: auto;
+      }
+
+      .loader {
+        display: none;
+        margin: 2rem auto;
+      }
+    </style>
   </head>
   <body>
     <h1>WordPress REST API</h1>
@@ -40,7 +135,7 @@
         DOMAIN = "https://malvestida.com",
         SITE = `${DOMAIN}/wp-json`,
         API_WP = `${SITE}/wp/v2`,
-        POSTS = `${API_WP}/posts`,
+        POSTS = `${API_WP}/posts?_embed`, //Trae mayor informacion, como imagenes, categorias, etc...
         PAGES = `${API_WP}/pages`,
         CATEGORIES = `${API_WP}/categories`;
 
@@ -66,10 +161,55 @@
       }
 
       function getPosts() {
+        $loader.style.display = "block";
         fetch(POSTS)
           .then((res) => (res.ok ? res.json() : Promise.reject(res)))
           .then((json) => {
             console.log(json);
+
+            json.forEach((el) => {
+              let categories = "",
+                tags = "";
+
+              el._embedded["wp:term"][0].forEach(
+                (el) => (categories += `<li>${el.name}</li>`)
+              );
+              el._embedded["wp:term"][1].forEach(
+                (el) => (tags += `<li>${el.name}</li>`)
+              );
+
+              $template.querySelector(".post-image").src =
+                el._embedded["wp:featuredmedia"][0].source_url;
+              $template.querySelector(".post-image").alt = el.title.rendered;
+              $template.querySelector(".post-title").innerHTML =
+                el.title.rendered;
+              $template.querySelector(".post-author").innerHTML = `
+                <img src="${el._embedded.author[0].avatar_urls["48"]}" alt="${el._embedded.author[0].name}">
+                <figcaption>${el._embedded.author[0].name}</figcaption>
+                `;
+              $template.querySelector(".post-date").innerHTML = new Date(
+                el.date
+              ).toLocaleDateString();
+              $template.querySelector(".post-link").href = el.link;
+              $template.querySelector(".post-excerpt").innerHTML =
+                el.excerpt.rendered.replace("[&hellip;]", "...");
+              $template.querySelector(".post-categories").innerHTML = `
+                <p>Categorías</p>
+                <ul> ${categories}</ul>
+                `;
+              $template.querySelector(".post-tags").innerHTML = `
+                <p>Etiquetas</p>
+                <ul> ${tags}</ul>
+                `;
+              $template.querySelector(".post-content > article").innerHTML =
+                el.content.rendered;
+
+              let $clone = d.importNode($template, true);
+              $fragment.appendChild($clone);
+            });
+
+            $posts.appendChild($fragment);
+            $loader.style.display = "none";
           })
           .catch((err) => {
             console.log(err);
