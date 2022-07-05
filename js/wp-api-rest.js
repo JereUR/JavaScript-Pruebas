@@ -1,4 +1,5 @@
 const d = document,
+  w = window,
   $site = d.getElementById("site"),
   $posts = d.getElementById("posts"),
   $loader = d.querySelector(".loader"),
@@ -11,11 +12,14 @@ const d = document,
   PAGES = `${API_WP}/pages`,
   CATEGORIES = `${API_WP}/categories`;
 
+let page = 1,
+  perPage = 5;
+
 function getSiteData() {
   fetch(SITE)
     .then((res) => (res.ok ? res.json() : Promise.reject(res)))
     .then((json) => {
-      console.log(json);
+      //console.log(json);
       $site.innerHTML = `
             <h3>Sitio Web</h3>
             <h2>
@@ -34,10 +38,10 @@ function getSiteData() {
 
 function getPosts() {
   $loader.style.display = "block";
-  fetch(POSTS)
+  fetch(`${POSTS}&page=${page}&per_page=${perPage}`)
     .then((res) => (res.ok ? res.json() : Promise.reject(res)))
     .then((json) => {
-      console.log(json);
+      //console.log(json);
 
       json.forEach((el) => {
         let categories = "",
@@ -96,4 +100,13 @@ function getPosts() {
 d.addEventListener("DOMContentLoaded", (e) => {
   getSiteData();
   getPosts();
+});
+
+w.addEventListener("scroll", (e) => {
+  const { scrollTop, clientHeight, scrollHeight } = d.documentElement;
+
+  if (scrollTop + clientHeight >= scrollHeight) {
+    page++;
+    getPosts();
+  }
 });
