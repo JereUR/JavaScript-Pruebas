@@ -50,8 +50,11 @@ function getPosts() {
           (el) => (tags += `<li>${el.name}</li>`)
         );
 
-        $template.querySelector(".post-image").src =
-          el._embedded["wp:featuredmedia"][0].source_url;
+        $template.querySelector(".post-image").src = el._embedded[
+          "wp:featuredmedia"
+        ][0]
+          ? el._embedded["wp:featuredmedia"][0].source_url
+          : "";
         $template.querySelector(".post-image").alt = el.title.rendered;
         $template.querySelector(".post-title").innerHTML = el.title.rendered;
         $template.querySelector(".post-author").innerHTML = `
